@@ -66,7 +66,7 @@ class PdoConnection implements ConnectionInterface
     {
         $this->initialize();
 
-        if (false === $value = $this->pdo->quote((string)$value)) {
+        if (false === $value = $this->pdo->quote((string) $value)) {
             throw new ConnectionException($this->pdo->errorInfo(), $this->pdo->errorCode());
         }
 

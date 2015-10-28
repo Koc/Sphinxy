@@ -13,7 +13,7 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $this->escaper = $this->getMock('Brouzie\Sphinxy\Escaper', array(), array(), '', false);
         $this->escaper->expects($this->any())
             ->method('quote')
-            ->will($this->returnCallback(function($item) {
+            ->will($this->returnCallback(function ($item) {
                         return '-'.$item.'-';
                     }));
     }
@@ -33,9 +33,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrepareQuery($expected, $sql, $params)
     {
-        $this->assertEquals($expected, Util::prepareQuery($sql, $params, $this->escaper));
+        $this->assertSame($expected, Util::prepareQuery($sql, $params, $this->escaper));
     }
-
 
     public function parameterNotFoundDataProvider()
     {

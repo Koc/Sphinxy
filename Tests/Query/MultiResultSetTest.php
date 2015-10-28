@@ -52,7 +52,7 @@ class MultiResultSetTest extends \PHPUnit_Framework_TestCase
 
         foreach ($multiResultSet as $i => $resultSet) {
             $this->assertInstanceOf('Brouzie\Sphinxy\Query\SimpleResultSet', $resultSet);
-            $this->assertEquals($expected[$i], iterator_to_array($resultSet->getIterator()));
+            $this->assertSame($expected[$i], iterator_to_array($resultSet->getIterator()));
         }
     }
 }
