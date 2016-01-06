@@ -27,7 +27,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $qb->select('*')
             ->from('users');
 
-        $this->assertEquals('SELECT * FROM users', $qb->getSql());
+        $this->assertSame('SELECT * FROM users', $qb->getSql());
     }
 
     public function testSimpleSelectWithExtraColumnsAndAliases()
@@ -39,7 +39,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->addSelect('city_id = 123 AS c')
         ;
 
-        $this->assertEquals('SELECT *, city_id = 123 AS c FROM users', $qb->getSql());
+        $this->assertSame('SELECT *, city_id = 123 AS c FROM users', $qb->getSql());
     }
 
     public function testSimpleSelectFromMultipleSources()
@@ -51,7 +51,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->addFrom('newcommers')
         ;
 
-        $this->assertEquals('SELECT * FROM users, newcommers', $qb->getSql());
+        $this->assertSame('SELECT * FROM users, newcommers', $qb->getSql());
     }
 
     public function testSimpleSelectWithLimit()
@@ -63,10 +63,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->setMaxResults(10)
         ;
 
-        $this->assertEquals('SELECT * FROM users LIMIT 0, 10', $qb->getSql());
+        $this->assertSame('SELECT * FROM users LIMIT 0, 10', $qb->getSql());
     }
 
     //TODO: offset without limit?
+
     public function testSimpleSelectWithLimitAndOffset()
     {
         $qb = $this->getQueryBuilder();
@@ -77,7 +78,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->setFirstResult(100)
         ;
 
-        $this->assertEquals('SELECT * FROM users LIMIT 100, 10', $qb->getSql());
+        $this->assertSame('SELECT * FROM users LIMIT 100, 10', $qb->getSql());
     }
 
     public function testSelectWithSubselect()
@@ -96,8 +97,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->orderBy('udf_result', 'DESC')
         ;
 
-        $this->assertEquals('SELECT * FROM (SELECT id, name, TESTUDF(id) AS udf_result FROM users WHERE id > :id ORDER BY name ASC) ORDER BY udf_result DESC', $qb->getSql());
-        $this->assertEquals(array('id' => 5), $qb->getParameters());
+        $this->assertSame('SELECT * FROM (SELECT id, name, TESTUDF(id) AS udf_result FROM users WHERE id > :id ORDER BY name ASC) ORDER BY udf_result DESC', $qb->getSql());
+        $this->assertSame(array('id' => 5), $qb->getParameters());
     }
 
     public function testSimpleWhere()
@@ -108,7 +109,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->from('products')
             ->where('qty = :qty');
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :qty', $qb->getSql());
+        $this->assertSame('SELECT * FROM products WHERE qty = :qty', $qb->getSql());
     }
 
     public function testCompositeWhere()
@@ -121,7 +122,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->andWhere('price > 10')
         ;
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :qty AND price > 10', $qb->getSql());
+        $this->assertSame('SELECT * FROM products WHERE qty = :qty AND price > 10', $qb->getSql());
     }
 
     public function testOrderBySelectExpression()
@@ -135,7 +136,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->orderBy('price', 'ASC')
             ->addOrderBy('best_city', 'DESC');
 
-        $this->assertEquals('SELECT *, city = :city AS best_city FROM products WHERE qty = :qty ORDER BY price ASC, best_city DESC', $qb->getSql());
+        $this->assertSame('SELECT *, city = :city AS best_city FROM products WHERE qty = :qty ORDER BY price ASC, best_city DESC', $qb->getSql());
     }
 
     public function testOrderByRandSelectExpression()
@@ -151,7 +152,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->addOrderBy('RAND()')
         ;
 
-        $this->assertEquals('SELECT *, city = :city AS best_city FROM products WHERE qty = :qty ORDER BY price ASC, best_city DESC, RAND()', $qb->getSql());
+        $this->assertSame('SELECT *, city = :city AS best_city FROM products WHERE qty = :qty ORDER BY price ASC, best_city DESC, RAND()', $qb->getSql());
     }
 
     public function testGroupBy()
@@ -162,7 +163,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->from('products')
             ->groupBy('company_id');
 
-        $this->assertEquals('SELECT * FROM products GROUP BY company_id', $qb->getSql());
+        $this->assertSame('SELECT * FROM products GROUP BY company_id', $qb->getSql());
     }
 
     public function testGroupByWithLimit()
@@ -173,7 +174,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->from('products')
             ->groupBy('company_id', 3);
 
-        $this->assertEquals('SELECT * FROM products GROUP 3 BY company_id', $qb->getSql());
+        $this->assertSame('SELECT * FROM products GROUP 3 BY company_id', $qb->getSql());
     }
 
     public function testGroupByWithOrderBy()
@@ -185,7 +186,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->groupBy('company_id')
             ->withinGroupOrderBy('is_special_offer', 'DESC');
 
-        $this->assertEquals('SELECT * FROM products GROUP BY company_id WITHIN GROUP ORDER BY is_special_offer DESC', $qb->getSql());
+        $this->assertSame('SELECT * FROM products GROUP BY company_id WITHIN GROUP ORDER BY is_special_offer DESC', $qb->getSql());
     }
 
     public function testMultipleGroupByWithOrderBy()
@@ -211,7 +212,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->facet('attributes', null, 'COUNT(*)', 'DESC');
         //TODO: add test for limit/skip
 
-        $this->assertEquals('SELECT * FROM products FACET brand_name, brand_id AS brand BY brand_id ORDER BY brand_name ASC FACET attributes ORDER BY COUNT(*) DESC', $qb->getSql());
+        $this->assertSame('SELECT * FROM products FACET brand_name, brand_id AS brand BY brand_id ORDER BY brand_name ASC FACET attributes ORDER BY COUNT(*) DESC', $qb->getSql());
     }
 
     public function testWhereWithMultipleGroupBy()
@@ -224,7 +225,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->groupBy('city_id')
             ->addGroupBy('company_id');
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :qty GROUP BY city_id, company_id', $qb->getSql());
+        $this->assertSame('SELECT * FROM products WHERE qty = :qty GROUP BY city_id, company_id', $qb->getSql());
     }
 
     public function testSimpleInsert()
@@ -235,7 +236,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->values(array('id' => 1, 'title' => "'product 1'"))
         ;
 
-        $this->assertEquals("INSERT INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
+        $this->assertSame("INSERT INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
     }
 
     public function testInsertMultipleValues()
@@ -247,7 +248,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->addValues(array('id' => 2, 'title' => "'product 2'"))
         ;
 
-        $this->assertEquals("INSERT INTO products (id, title) VALUES (1, 'product 1'), (2, 'product 2')", $qb->getSql());
+        $this->assertSame("INSERT INTO products (id, title) VALUES (1, 'product 1'), (2, 'product 2')", $qb->getSql());
     }
 
     public function testSimpleReplace()
@@ -258,7 +259,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->values(array('id' => 1, 'title' => "'product 1'"))
         ;
 
-        $this->assertEquals("REPLACE INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
+        $this->assertSame("REPLACE INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
     }
 
     public function testSimpleUpdate()
@@ -270,7 +271,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->where('id = 1')
         ;
 
-        $this->assertEquals("UPDATE products SET title = 'product 2' WHERE id = 1", $qb->getSql());
+        $this->assertSame("UPDATE products SET title = 'product 2' WHERE id = 1", $qb->getSql());
     }
 
     public function testUpdateWithMultipleSet()
@@ -279,11 +280,11 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
         $qb->update('products')
             ->set('title', "'product 2'")
-            ->set('attributes', "(1, 2, 3)")
+            ->set('attributes', '(1, 2, 3)')
             ->where('id = 1')
         ;
 
-        $this->assertEquals("UPDATE products SET title = 'product 2', attributes = (1, 2, 3) WHERE id = 1", $qb->getSql());
+        $this->assertSame("UPDATE products SET title = 'product 2', attributes = (1, 2, 3) WHERE id = 1", $qb->getSql());
     }
 
     public function testSimpleDelete()
@@ -294,7 +295,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->where('id = 1')
         ;
 
-        $this->assertEquals("DELETE FROM products WHERE id = 1", $qb->getSql());
+        $this->assertSame('DELETE FROM products WHERE id = 1', $qb->getSql());
     }
 
     public function testCreateParameter()
@@ -307,8 +308,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->andWhere('price > '.$qb->createParameter(20))
         ;
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :gen_2', $qb->getSql());
-        $this->assertEquals(array('gen_1' => 10, 'gen_2' => 20), $qb->getParameters());
+        $this->assertSame('SELECT * FROM products WHERE qty = :gen_1 AND price > :gen_2', $qb->getSql());
+        $this->assertSame(array('gen_1' => 10, 'gen_2' => 20), $qb->getParameters());
     }
 
     public function testCreateParameterWithPrefix()
@@ -322,8 +323,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->andWhere('attributes.10 = '.$qb->createParameter(101, 'attributes.10'))
         ;
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :price2 AND attributes.10 = :attributes_103', $qb->getSql());
-        $this->assertEquals(array('gen_1' => 10, 'price2' => 20, 'attributes_103' => 101), $qb->getParameters());
+        $this->assertSame('SELECT * FROM products WHERE qty = :gen_1 AND price > :price2 AND attributes.10 = :attributes_103', $qb->getSql());
+        $this->assertSame(array('gen_1' => 10, 'price2' => 20, 'attributes_103' => 101), $qb->getParameters());
     }
 
     public function testQueryWithOption()
@@ -336,7 +337,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->setOption('max_matches', 1000)
         ;
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :qty OPTION max_matches = 1000', $qb->getSql());
+        $this->assertSame('SELECT * FROM products WHERE qty = :qty OPTION max_matches = 1000', $qb->getSql());
     }
 
     public function testQueryWithMultipleOptions()
@@ -350,7 +351,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->setOption('max_query_time', 10)
         ;
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :qty OPTION max_matches = 1000, max_query_time = 10', $qb->getSql());
+        $this->assertSame('SELECT * FROM products WHERE qty = :qty OPTION max_matches = 1000, max_query_time = 10', $qb->getSql());
     }
 
     protected function getQueryBuilder()
