@@ -13,7 +13,7 @@ class MultiResultSetTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$conn = new Connection(new Connection\PdoConnection($_ENV['sphinx_dsn']));
+        self::$conn = new Connection(new Connection\PdoDriver($_ENV['sphinx_dsn']));
     }
 
     public function setUp()
