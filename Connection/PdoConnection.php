@@ -4,7 +4,7 @@ namespace Brouzie\Sphinxy\Connection;
 
 use Brouzie\Sphinxy\Exception\ConnectionException;
 
-class PdoConnection implements ConnectionInterface
+class PdoConnection implements Driver
 {
     /**
      * @var \PDO

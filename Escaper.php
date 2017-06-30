@@ -2,18 +2,18 @@
 
 namespace Brouzie\Sphinxy;
 
-use Brouzie\Sphinxy\Connection\ConnectionInterface;
+use Brouzie\Sphinxy\Connection\Driver;
 
 class Escaper
 {
     /**
-     * @var ConnectionInterface
+     * @var Driver
      */
-    protected $conn;
+    private $driver;
 
-    public function __construct(ConnectionInterface $conn)
+    public function __construct(Driver $driver)
     {
-        $this->conn = $conn;
+        $this->driver = $driver;
     }
 
     /**
@@ -99,7 +99,7 @@ class Escaper
                 return '('.implode(',', $this->quoteArr($value)).')';
         }
 
-        return $this->conn->quote($value);
+        return $this->driver->quote($value);
     }
 
     /**

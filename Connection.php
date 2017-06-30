@@ -2,7 +2,7 @@
 
 namespace Brouzie\Sphinxy;
 
-use Brouzie\Sphinxy\Connection\ConnectionInterface;
+use Brouzie\Sphinxy\Connection\Driver;
 use Brouzie\Sphinxy\Logging\LoggerInterface;
 use Brouzie\Sphinxy\Query\MultiResultSet;
 use Brouzie\Sphinxy\Query\ResultSet;
@@ -10,9 +10,9 @@ use Brouzie\Sphinxy\Query\ResultSet;
 class Connection
 {
     /**
-     * @var ConnectionInterface
+     * @var Driver
      */
-    private $conn;
+    private $driver;
 
     /**
      * @var Escaper
@@ -24,9 +24,9 @@ class Connection
      */
     private $logger;
 
-    public function __construct(ConnectionInterface $conn)
+    public function __construct(Driver $driver)
     {
-        $this->conn = $conn;
+        $this->driver = $driver;
     }
 
     /**
@@ -51,7 +51,7 @@ class Connection
             $this->logger->startQuery($query);
         }
 
-        $result = $this->conn->exec($this->prepareQuery($query, $params));
+        $result = $this->driver->exec($this->prepareQuery($query, $params));
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
@@ -66,12 +66,12 @@ class Connection
             $this->logger->startQuery($query, $params);
         }
 
-        $result = $this->conn->query($this->prepareQuery($query, $params));
+        $result = $this->driver->query($this->prepareQuery($query, $params));
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
         }
-        $meta = $this->conn->query('SHOW META');
+        $meta = $this->driver->query('SHOW META');
 
         return new ResultSet($result, $meta);
     }
@@ -82,25 +82,25 @@ class Connection
             $this->logger->startQuery($query, $params);
         }
 
-        $results = $this->conn->multiQuery($this->prepareQuery($query, $params), $resultSetNames);
+        $results = $this->driver->multiQuery($this->prepareQuery($query, $params), $resultSetNames);
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
         }
-        $meta = $this->conn->query('SHOW META');
+        $meta = $this->driver->query('SHOW META');
 
         return new MultiResultSet($results, $meta);
     }
 
     public function quote($value)
     {
-        return $this->conn->quote($value);
+        return $this->driver->quote($value);
     }
 
     public function getEscaper()
     {
         if (null === $this->escaper) {
-            $this->escaper = new Escaper($this->conn);
+            $this->escaper = new Escaper($this->driver);
         }
 
         return $this->escaper;
@@ -108,7 +108,7 @@ class Connection
 
     public function checkConnection()
     {
-        $this->conn->checkConnection();
+        $this->driver->checkConnection();
     }
 
     /**
