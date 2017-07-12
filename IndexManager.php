@@ -135,16 +135,18 @@ class IndexManager
             return;
         }
 
-        $escaper = $this->conn->getEscaper();
-        $insertQb = $this->conn
-            ->createQueryBuilder()
-            ->replace($escaper->quoteIdentifier($index));
+        $this->safeExecute(function () use ($index, $indexer, $items) {
+            $escaper = $this->conn->getEscaper();
+            $insertQb = $this->conn
+                ->createQueryBuilder()
+                ->replace($escaper->quoteIdentifier($index));
 
-        foreach ($items as $item) {
-            $insertQb->addValues($escaper->quoteSetArr($indexer->serializeItem($item)));
-        }
+            foreach ($items as $item) {
+                $insertQb->addValues($escaper->quoteSetArr($indexer->serializeItem($item)));
+            }
 
-        $insertQb->execute();
+            $insertQb->execute();
+        });
     }
 
     protected function safeExecute(callable $callable, array $args = array(), $retriesCount = 3, $sleep = 20)
